@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sports & Fitness Platform</title>
+<style>
+body {margin:0; font-family:Arial,sans-serif; background:#f5f5f5;}
+.navbar {background:linear-gradient(90deg,#FF9933,#fff,#138808); padding:10px; display:flex; justify-content:space-between;}
+.navbar .logo {font-weight:bold;}
+.navbar ul {list-style:none; display:flex; gap:15px; margin:0; padding:0;}
+.navbar ul li a {text-decoration:none; color:#000; font-weight:bold;}
+.section {display:none; padding:20px;}
+.active-section {display:block;}
+input, select, textarea, button {margin:5px 0; padding:8px; width:100%; max-width:400px; border:1px solid #ccc; border-radius:4px;}
+button {background:#138808; color:#fff; font-weight:bold; cursor:pointer;}
+button:hover {background:#FF9933;}
+.news-box, .cert-item, .video-item, .search-results, .leaderboard {background:#fff; padding:10px; margin:10px 0; border-radius:8px;}
+.chatbox {background:#fff; border:1px solid #ccc; border-radius:8px; max-width:600px; height:400px; margin:auto; display:flex; flex-direction:column;}
+.messages {flex:1; overflow-y:auto; padding:10px;}
+.msg {margin:5px 0; padding:8px 12px; border-radius:12px; max-width:75%;}
+.user {background:#138808; color:white; margin-left:auto;}
+.bot {background:#ddd; color:black; margin-right:auto;}
+.input-area {display:flex; padding:10px; border-top:1px solid #ccc;}
+.input-area input {flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;}
+.input-area button {margin-left:5px; padding:8px 15px; background:#FF9933; border:none; border-radius:4px; font-weight:bold; cursor:pointer;}
+/* Profile Card Styles */
+.profile-card {background:white; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); padding:15px; max-width:250px; text-align:center; margin:10px; display:inline-block; vertical-align:top;}
+.profile-pic {width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid #138808;}
+.profile-card button {margin-top:10px; padding:8px 15px; border:none; border-radius:8px; background:#FF9933; color:white; font-weight:bold; cursor:pointer;}
+
+/* Chat Modal Styles */
+#chatModal {display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  background:#fff; border:2px solid #138808; border-radius:12px; width:400px; max-width:90%; height:500px; z-index:1000; box-shadow:0 5px 20px rgba(0,0,0,0.3);}
+#chatModalHeader {padding:10px; background:#138808; color:white; border-top-left-radius:10px; border-top-right-radius:10px;}
+#chatMessages {padding:10px; height:380px; overflow-y:auto; background:#f5f5f5;}
+#chatInputBox {flex:1; padding:8px; border-radius:6px; border:1px solid #ccc;}
+#sendChatBtn {margin-left:5px; padding:8px 12px; background:#FF9933; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+  <div class="logo">Sports Platform</div>
+  <ul>
+    <li><a href="#" data-page="home" class="active">Home</a></li>
+    <li><a href="#" data-page="students">Students</a></li>
+    <li><a href="#" data-page="coaches">Coaches</a></li>
+    <li><a href="#" data-page="dashboard">Dashboard</a></li>
+    <li><a href="#" data-page="leaderboard">Leaderboard</a></li>
+    <li><a href="#" data-page="chatbot">AI Chatbot</a></li>
+    <li><a href="#" data-page="profile">Profile</a></li>
+  </ul>
+</div>
+
+<!-- Sections -->
+<div id="home" class="section active-section">
+  <h2>Welcome to Sports & Fitness Platform</h2>
+  <p>Register, upload profile photo & bio, post videos & certificates, chat with matched coaches/students, and get AI insights!</p>
+  <h3>🏟️ Live Sports News</h3>
+  <div id="newsFeed"></div>
+</div>
+
+<div id="students" class="section">
+  <h2>Student Registration</h2>
+  <input id="s_name" placeholder="Full Name">
+  <input id="s_parent" placeholder="Parent's Name">
+  <input id="s_income" placeholder="Income Certificate No">
+  <select id="s_state"><option value="">Select State</option><option>AP</option><option>TS</option><option>TN</option></select>
+  <select id="s_sport"><option value="">Select Sport</option><option>Cricket</option><option>Football</option><option>Badminton</option><option>Hockey</option></select>
+  <input id="s_username" placeholder="Username">
+  <input id="s_password" type="password" placeholder="Password">
+  <textarea id="s_bio" placeholder="Short Bio"></textarea>
+  <input type="file" id="s_photo" accept="image/*">
+  <button onclick="registerUser('student')">Register</button>
+</div>
+
+<div id="coaches" class="section">
+  <h2>Coach Registration</h2>
+  <input id="c_name" placeholder="Full Name">
+  <input id="c_parent" placeholder="Parent's Name">
+  <input id="c_income" placeholder="Income Certificate No">
+  <select id="c_state"><option value="">Select State</option><option>AP</option><option>TS</option><option>TN</option></select>
+  <select id="c_sport"><option value="">Select Sport</option><option>Cricket</option><option>Football</option><option>Badminton</option><option>Hockey</option></select>
+  <input id="c_username" placeholder="Username">
+  <input id="c_password" type="password" placeholder="Password">
+  <textarea id="c_bio" placeholder="Short Bio"></textarea>
+  <input type="file" id="c_photo" accept="image/*">
+  <button onclick="registerUser('coach')">Register</button>
+  <h3>🔎 AI Search Students</h3>
+  <input id="searchQuery" placeholder="e.g. cricket players in TS">
+  <button onclick="aiSearch()">Search</button>
+  <div id="searchResults"></div>
+</div>
+
+<div id="dashboard" class="section">
+  <h2>Certificates & Videos</h2>
+  <textarea id="certInput" placeholder="Enter certificate details"></textarea>
+  <button onclick="postCertificate()">Post Certificate</button>
+  <div id="certList"></div>
+
+  <input id="videoLink" placeholder="Video URL">
+  <textarea id="videoDesc" placeholder="Video description"></textarea>
+  <button onclick="postVideo()">Post Video</button>
+  <div id="videoList"></div>
+</div>
+
+<div id="leaderboard" class="section">
+  <h2>Leaderboard + AI Prediction</h2>
+  <div id="leaderboardList" class="leaderboard"></div>
+</div>
+
+<div id="chatbot" class="section">
+  <h2>🤖 Smart AI Chatbot</h2>
+  <div class="chatbox">
+    <div class="messages" id="messages"></div>
+    <div class="input-area">
+      <input id="chatInput" placeholder="Ask anything about sports, fitness, or training...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<div id="profile" class="section">
+  <h2>Profile</h2>
+  <div id="profileInfo"></div>
+  <button onclick="assessTalent()">Run AI Talent Assessment</button>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- Chat Modal -->
+<div id="chatModal">
+  <div id="chatModalHeader">
+    <span id="chatTitle">Chat</span>
+    <button onclick="closeChat()" style="float:right; background:red; color:white; border:none; border-radius:5px; cursor:pointer;">X</button>
+  </div>
+  <div id="chatMessages"></div>
+  <div style="display:flex; padding:10px; border-top:1px solid #ccc;">
+    <input id="chatInputBox" placeholder="Type message...">
+    <button id="sendChatBtn" onclick="sendChatMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+// ---------- Storage ----------
+let users = JSON.parse(localStorage.getItem("users")||"[]");
+let certificates = JSON.parse(localStorage.getItem("certificates")||"[]");
+let videos = JSON.parse(localStorage.getItem("videos")||"[]");
+let chats = JSON.parse(localStorage.getItem("chats")||"{}");
+
+// ---------- Live News ----------
+const newsData = [
+  {title:"India wins Asia Cup Final!", summary:"India defeated Sri Lanka with a strong batting performance.", link:"https://www.espncricinfo.com"},
+  {title:"Messi scores hat-trick in MLS", summary:"Lionel Messi shines with 3 goals leading his team to victory.", link:"https://www.goal.com"},
+  {title:"PV Sindhu enters finals", summary:"Indian badminton star Sindhu storms into championship final.", link:"https://www.espn.in"},
+  {title:"Neeraj Chopra sets new record", summary:"Olympic champion throws javelin beyond 90m mark.", link:"https://www.olympics.com"}
+];
+let currentNewsIndex = 0;
+function showLiveNews(){
+  const feed = document.getElementById("newsFeed");
+  const n = newsData[currentNewsIndex];
+  feed.innerHTML = `<div class="news-box"><b>${n.title}</b><p>${n.summary}</p><a href="${n.link}" target="_blank">Read More</a></div>`;
+  currentNewsIndex = (currentNewsIndex + 1) % newsData.length;
+}
+showLiveNews();
+setInterval(showLiveNews, 120000);
+
+// ---------- Registration ----------
+function registerUser(role){
+  const prefix=role[0];
+  const photoInput = document.getElementById(prefix+"_photo");
+  const file = photoInput.files[0];
+  let photoData = "";
+  if(file){
+    const reader = new FileReader();
+    reader.onload = function(e){ photoData = e.target.result; saveUser(); };
+    reader.readAsDataURL(file);
+  } else saveUser();
+
+  function saveUser(){
+    const user={role,name:document.getElementById(prefix+"_name").value,parent:document.getElementById(prefix+"_parent").value,income:document.getElementById(prefix+"_income").value,state:document.getElementById(prefix+"_state").value,sport:document.getElementById(prefix+"_sport").value,username:document.getElementById(prefix+"_username").value,password:document.getElementById(prefix+"_password").value,bio:document.getElementById(prefix+"_bio").value,photo:photoData};
+    users.push(user);
+    localStorage.setItem("users",JSON.stringify(users));
+    alert(role+" registered! AI suggests: "+aiRecommendation(user));
+    renderProfile(user.username);
+  }
+}
+
+function aiRecommendation(user){
+  if(user.role==="student"){
+    const match=users.find(u=>u.role==="coach" && u.sport===user.sport && u.state===user.state);
+    return match?`Best Coach match → ${match.name} (${match.state}, ${match.sport})`:"No coach match yet.";
+  } else {
+    const match=users.find(u=>u.role==="student" && u.sport===user.sport && u.state===user.state);
+    return match?`You can guide student → ${match.name} (${match.state}, ${match.sport})`:"No student match yet.";
+  }
+}
+
+// ---------- Certificates + Videos ----------
+function postCertificate(){const text=document.getElementById("certInput").value;if(!text)return;certificates.push(text);localStorage.setItem("certificates",JSON.stringify(certificates));document.getElementById("certInput").value="";renderCertificates();}
+function renderCertificates(){const list=document.getElementById("certList");list.innerHTML=certificates.map(c=>`<div class="cert-item">${c}</div>`).join("");if(certificates.length) list.innerHTML+=`<p><i>AI Insight: You have ${certificates.length} certificates.</i></p>`;}
+function postVideo(){const link=document.getElementById("videoLink").value;const desc=document.getElementById("videoDesc").value;if(!link)return;videos.push({link,desc});localStorage.setItem("videos",JSON.stringify(videos));document.getElementById("videoLink").value="";document.getElementById("videoDesc").value="";renderVideos();}
+function renderVideos(){const list=document.getElementById("videoList");list.innerHTML="";videos.forEach(v=>{list.innerHTML+=`<div class="video-item"><a href="${v.link}" target="_blank">${v.desc}</a></div>`;});if(videos.length) list.innerHTML+=`<p><i>AI Insight: ${videos.length} videos uploaded.</i></p>`;}
+
+// ---------- Leaderboard ----------
+function renderLeaderboard(){const board=document.getElementById("leaderboardList");const students=users.filter(u=>u.role==="student");let ranks=students.map(s=>({name:s.name,score:(certificates.length*10)+(videos.length*5)+Math.floor(Math.random()*20)}));ranks.sort((a,b)=>b.score-a.score);board.innerHTML=ranks.map((r,i)=>`<div>#${i+1} ${r.name} - ${r.score} pts</div>`).join("");if(ranks.length) board.innerHTML+=`<p><i>AI Prediction: ${ranks[0].name} is likely to stay top next month.</i></p>`;}
+renderLeaderboard();
+
+// ---------- AI Search ----------
+function aiSearch(){const q=document.getElementById("searchQuery").value.toLowerCase();let results=users.filter(u=>u.role==="student" && (q.includes(u.sport.toLowerCase())||q.includes(u.state.toLowerCase())));document.getElementById("searchResults").innerHTML=results.length?results.map(r=>`<div>${r.name} (${r.state}, ${r.sport})</div>`).join(""):"No matches found";}
+
+// ---------- Profile ----------
+function renderProfile(username=""){const user=users.find(u=>u.username===username)||users[users.length-1];if(!user)return;
+let profileHTML=`<div class="profile-card"><img src="${user.photo||'https://via.placeholder.com/100'}" class="profile-pic"><h3>${user.name}</h3><p>${user.bio}</p><p>Sport: ${user.sport}</p><p>State: ${user.state}</p><p>Certificates: ${certificates.length} | Videos: ${videos.length}</p>`;
+if(user.role==="student"){
+  const coach = users.find(u=>u.role==="coach" && u.sport===user.sport && u.state===user.state);
+  if(coach) profileHTML+=`<button onclick="openChat('${user.username}','${coach.username}')">Chat with Coach</button>`;
+} else {
+  const student = users.find(u=>u.role==="student" && u.sport===user.sport && u.state===user.state);
+  if(student) profileHTML+=`<button onclick="openChat('${student.username}','${user.username}')">Chat with Student</button>`;
+}
+profileHTML+="</div>";
+document.getElementById("profileInfo").innerHTML=profileHTML;}
+
+function logout(){document.getElementById("profileInfo").innerHTML="";}
+
+// ---------- Talent Assessment ----------
+function assessTalent(){let age=parseInt(prompt("Enter your age:"));let height=parseFloat(prompt("Enter your height (cm):"));let weight=parseFloat(prompt("Enter your weight (kg):"));let pushups=parseInt(prompt("How many pushups can you do in 1 minute?"));let run=parseInt(prompt("Time for 1km run (in seconds):"));let bmi=(weight/((height/100)**2)).toFixed(2);let staminaScore=pushups+(400/run*50);let suitability="";if(bmi<18.5)suitability+="⚡ Best for endurance sports. ";else if(bmi<25)suitability+="💪 Balanced – Suitable for Cricket, Badminton, Hockey. ";else suitability+="🏋️ Strength-based sports. ";if(staminaScore>70)suitability+="Great stamina!";else if(staminaScore>40)suitability+="Average stamina – can improve.";else suitability+="Low stamina – needs training.";alert(`📊 AI Talent Report:\nBMI: ${bmi}\nStamina Score: ${staminaScore.toFixed(1)}\nRecommendation: ${suitability}`);}
+
+// ---------- Smart Offline Chatbot ----------
+let chatHistory=JSON.parse(localStorage.getItem("chatHistory")||"[]");
+function addMessage(text,sender){const div=document.createElement("div");div.className="msg "+sender;div.innerText=text;document.getElementById("messages").appendChild(div);div.scrollIntoView();chatHistory.push({role:sender,text});localStorage.setItem("chatHistory",JSON.stringify(chatHistory));}
+function getAIAnswer(q){q=q.toLowerCase();const knowledge=[{keywords:["cricket"],answer:"Cricket is played by 11 players per side."},{keywords:["football","soccer"],answer:"Football has 11 players per team."},{keywords:["badminton"],answer:"Badminton uses rackets and shuttlecock."},{keywords:["hockey"],answer:"Hockey is played with sticks and a ball."},{keywords:["fitness","exercise"],answer:"Daily exercise improves stamina."},{keywords:["diet","food"],answer:"Balanced diet with proteins, carbs, vitamins."},{keywords:["video","certificate"],answer:"You can post videos or certificates in the Dashboard."},{keywords:["leaderboard","score","rank"],answer:"Leaderboard ranks students based on performance."},{keywords:["coach","student","match"],answer:"AI can suggest coach-student matches based on sport and state."},{keywords:["hello","hi"],answer:"Hello! I'm your Smart Sports Assistant 🤖!"},{keywords:["thank","thanks"],answer:"You're welcome! Keep training hard! 💪"}];for(const item of knowledge){if(item.keywords.some(k=>q.includes(k)))return item.answer;}return"⚠️ Sorry, I’m not sure about that. Ask me about sports, fitness, training, or leaderboard!";}
+function sendMessage(){const input=document.getElementById("chatInput");const text=input.value.trim();if(!text)return;addMessage(text,"user");const reply=getAIAnswer(text);setTimeout(()=>addMessage(reply,"bot"),300);input.value="";}
+
+// ---------- Student-Coach Chat ----------
+let currentChatId = "";
+let currentUser = ""; // logged in user for chat simulation
+function openChat(user1, user2){
+  currentChatId = [user1, user2].sort().join("_");
+  currentUser = user1; // who is opening the chat
+  document.getElementById("chatModal").style.display="block";
+  document.getElementById("chatTitle").innerText="Chat: "+user2;
+  renderChatMessages();
+}
+function closeChat(){
+  document.getElementById("chatModal").style.display="none";
+  document.getElementById("chatMessages").innerHTML="";
+  document.getElementById("chatInputBox").value="";
+}
+function renderChatMessages(){
+  const container = document.getElementById("chatMessages");
+  container.innerHTML="";
+  if(!chats[currentChatId]) chats[currentChatId]=[];
+  chats[currentChatId].forEach(msg=>{
+    const div = document.createElement("div");
+    div.innerText=msg.sender+": "+msg.text;
+    div.style.padding="6px 10px";
+    div.style.margin="4px 0";
+    div.style.borderRadius="10px";
+    div.style.maxWidth="80%";
+    if(msg.sender===currentUser){
+      div.style.background="#138808"; div.style.color="white"; div.style.marginLeft="auto";
+    } else {
+      div.style.background="#ddd"; div.style.color="black"; div.style.marginRight="auto";
+    }
+    container.appendChild(div);
+    div.scrollIntoView();
+  });
+}
+function sendChatMessage(){
+  const input = document.getElementById("chatInputBox");
+  const text = input.value.trim();
+  if(!text) return;
+  if(!chats[currentChatId]) chats[currentChatId]=[];
+  chats[currentChatId].push({sender:currentUser, text});
+  localStorage.setItem("chats", JSON.stringify(chats));
+  input.value="";
+  renderChatMessages();
+}
+
+// ---------- Navigation ----------
+document.querySelectorAll(".navbar a").forEach(link=>{link.addEventListener("click",e=>{e.preventDefault();const page=link.getAttribute("data-page");document.querySelectorAll(".section").forEach(sec=>sec.classList.remove("active-section"));document.getElementById(page).classList.add("active-section");document.querySelectorAll(".navbar a").forEach(l=>l.classList.remove("active"));link.classList.add("active");if(page==="leaderboard")renderLeaderboard();});});
+</script>
+</body>
+</html>
